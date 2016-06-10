@@ -1,0 +1,38 @@
+proxy:
+    build: ./proxy
+    container_name: lairproxy
+    ports:
+        - "11013:11013"
+    command: ./caddy --conf=Caddyfile
+    links:
+        - app
+        - api
+
+app:
+    build: ./app
+    container_name: lairapp
+    ports:
+        - "11014:11014"
+    env_file: .env
+    command: node main.js
+    links:
+        - mongo
+
+api:
+    build: ./api
+    container_name: lairapi
+    ports: 
+        - "11015:11015"
+    env_file: .env
+    command: ./api-server_linux_amd64
+    links:
+        - mongo
+
+mongo:
+    build: ./mongo
+    container_name: mongodb
+    ports:
+        - "27017:27017"
+    volumes:
+        - db:/data/db
+    command: /usr/bin/mongod --quiet --nounixsocket --replSet rs0
